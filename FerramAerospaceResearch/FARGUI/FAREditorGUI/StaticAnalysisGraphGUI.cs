@@ -393,7 +393,7 @@ namespace FerramAerospaceResearch.FARGUI.FAREditorGUI
             public string pitchSetting;
             public string otherInput;
             public bool spoilers;
-            public bool logToCSV = true;
+            public bool logToCSV;
         }
     }
 }

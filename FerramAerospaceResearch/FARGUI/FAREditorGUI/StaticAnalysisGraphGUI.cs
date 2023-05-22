@@ -204,6 +204,11 @@ namespace FerramAerospaceResearch.FARGUI.FAREditorGUI
                                               input.spoilers
                                                   ? Localizer.Format("FAREditorStabDerivSDeploy")
                                                   : Localizer.Format("FAREditorStabDerivSRetract"));
+            GUILayout.Label(Localizer.Format("FAREditorStabDerivLogData"));
+            input.logToCSV = GUILayout.Toggle(input.logToCSV,
+                                              input.logToCSV
+                                                  ? Localizer.Format("FAREditorStabDerivLogDataTrue")
+                                                  : Localizer.Format("FAREditorStabDerivLogDataFalse"));
 
             GUILayout.EndVertical();
         }
@@ -273,6 +278,7 @@ namespace FerramAerospaceResearch.FARGUI.FAREditorGUI
                                                    (int)numPts,
                                                    input.flapSetting,
                                                    input.spoilers,
+                                                   input.logToCSV,
                                                    bodySettingDropdown.ActiveSelection);
                         SetAngleVectors(pitchSetting, pitchSetting);
                     }
@@ -285,6 +291,7 @@ namespace FerramAerospaceResearch.FARGUI.FAREditorGUI
                                                       (int)numPts,
                                                       input.flapSetting,
                                                       input.spoilers,
+                                                      input.logToCSV,
                                                       bodySettingDropdown.ActiveSelection);
                         SetAngleVectors(lowerBound, upperBound);
                     }
@@ -386,6 +393,7 @@ namespace FerramAerospaceResearch.FARGUI.FAREditorGUI
             public string pitchSetting;
             public string otherInput;
             public bool spoilers;
+            public bool logToCSV = true;
         }
     }
 }

@@ -42,7 +42,10 @@ Copyright 2022, Michael Ferrara, aka Ferram4
 	http://forum.kerbalspaceprogram.com/threads/60863
  */
 
+using System.IO;
+using System;
 using KSP.Localization;
+using LibNoise.Modifiers;
 
 namespace FerramAerospaceResearch.FARGUI.FAREditorGUI.Simulation
 {
@@ -68,6 +71,7 @@ namespace FerramAerospaceResearch.FARGUI.FAREditorGUI.Simulation
             int numPoints,
             int flapSetting,
             bool spoilers,
+            bool logTOCSV,
             CelestialBody body
         )
         {
@@ -98,11 +102,23 @@ namespace FerramAerospaceResearch.FARGUI.FAREditorGUI.Simulation
                 LDValues[i] = output.Cl * 0.1 / output.Cd;
             }
 
-            var data = new GraphData {xValues = AlphaValues};
+            var data = new GraphData { xValues = AlphaValues };
             data.AddData(ClValues, FARConfig.GUIColors.ClColor, Localizer.Format("FARAbbrevCl"), true);
             data.AddData(CdValues, FARConfig.GUIColors.CdColor, Localizer.Format("FARAbbrevCd"), true);
             data.AddData(CmValues, FARConfig.GUIColors.CmColor, Localizer.Format("FARAbbrevCm"), true);
             data.AddData(LDValues, FARConfig.GUIColors.LdColor, Localizer.Format("FARAbbrevL_D"), true);
+
+            if (logTOCSV)
+            {
+                double[] LD10 = new double[LDValues.Length];
+                for (int i = 0; i < LDValues.Length; i++)
+                {
+                    LD10[i] = LDValues[i] * 10;
+                }
+
+                string fileName = $"FAR_mach_sweep_{aoAdegrees}.csv";
+                SaveDataToCSV(fileName, AlphaValues, ClValues, CdValues, CmValues, LD10);
+            }
 
             return data;
         }
@@ -115,6 +131,7 @@ namespace FerramAerospaceResearch.FARGUI.FAREditorGUI.Simulation
             int numPoints,
             int flapSetting,
             bool spoilers,
+            bool logTOCSV,
             CelestialBody body
         )
         {
@@ -167,7 +184,7 @@ namespace FerramAerospaceResearch.FARGUI.FAREditorGUI.Simulation
                 }
             }
 
-            var data = new GraphData {xValues = AlphaValues};
+            var data = new GraphData { xValues = AlphaValues };
             data.AddData(ClValues2, FARConfig.GUIColors.ClColor * 0.5f, "Cl2", false);
             data.AddData(ClValues, FARConfig.GUIColors.ClColor, Localizer.Format("FARAbbrevCl"), true);
 
@@ -180,8 +197,42 @@ namespace FerramAerospaceResearch.FARGUI.FAREditorGUI.Simulation
             data.AddData(LDValues2, FARConfig.GUIColors.LdColor * 0.5f, "L/D2", false);
             data.AddData(LDValues, FARConfig.GUIColors.LdColor, Localizer.Format("FARAbbrevL_D"), true);
 
+            if (logTOCSV)
+            {
+                double[] LD10 = new double[LDValues.Length];
+                for (int i = 0; i < LDValues.Length; i++)
+                {
+                    LD10[i] = LDValues[i] * 10;
+                }
+
+                string fileName = $"FAR_aoa_sweep_{machNumber}.csv";
+                SaveDataToCSV(fileName, AlphaValues, ClValues, CdValues, CmValues, LD10);
+            }
 
             return data;
+        }
+
+        private void SaveDataToCSV(
+            string fileName,
+            double[] AlphaValues,
+            double[] ClValues,
+            double[] CdValues,
+            double[] CmValues,
+            double[] LDValues
+        )
+        {
+
+            string filePath = Path.Combine(Environment.CurrentDirectory, fileName);
+
+            using (StreamWriter writer = new StreamWriter(filePath))
+            {
+                writer.WriteLine("Alpha,Cl,Cd,Cm,LD");
+
+                for (int i = 0; i < ClValues.Length; i++)
+                {
+                    writer.WriteLine($"{AlphaValues[i]},{ClValues[i]},{CdValues[i]},{CmValues[i]},{LDValues[i]}");
+                }
+            }
         }
     }
 }

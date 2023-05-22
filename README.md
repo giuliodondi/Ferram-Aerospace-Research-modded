@@ -1,7 +1,15 @@
-# Ferram Aerospace Research Continued v0.16.1.2 "Marangoni"
+# Ferram Aerospace Research Continued v0.16.1.2 "Marangoni" - Modded
 
-[![Build](https://github.com/dkavolis/Ferram-Aerospace-Research/actions/workflows/package.yml/badge.svg?branch=master)](https://github.com/dkavolis/Ferram-Aerospace-Research/actions/workflows/package.yml)  
-Download latest build [here](https://nightly.link/dkavolis/Ferram-Aerospace-Research/workflows/package/master/FerramAerospaceResearch.zip)  
+My personal fork of Ferram Aerospace Research
+
+List of changes:
+- Added checkbox to Static Analysis window to export the generated plot as csv 
+    - The simulation must be run again after the checkbox is enabled
+    - The csv is saved in the KSP root
+- Made **FARWingAerodynamicModel.CalculateCoefficients** and **FARWingAerodynamicModel.CalculateAerodynamicCenter** overridable by inheritance
+    - I used this in my Space Shuttle System fork to create a custom aerodynamic model with real-world data
+
+---
 
 =========================  
 Aerodynamics model for Kerbal Space Program

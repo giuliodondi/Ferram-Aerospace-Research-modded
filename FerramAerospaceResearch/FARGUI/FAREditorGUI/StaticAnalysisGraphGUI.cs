@@ -210,7 +210,25 @@ namespace FerramAerospaceResearch.FARGUI.FAREditorGUI
                                                   ? Localizer.Format("FAREditorStabDerivLogDataTrue")
                                                   : Localizer.Format("FAREditorStabDerivLogDataFalse"));
 
-            GUILayout.EndVertical();
+            if (GUILayout.Button(Localizer.Format("FAREditorStaticCombinedSweep")))
+            {
+                SweepSim sim = simManager.SweepSim;
+                if (sim.IsReady())
+                {
+
+                    double pitchSetting = double.Parse(input.pitchSetting);
+                    pitchSetting = pitchSetting.Clamp(-1, 1);
+                    input.pitchSetting = pitchSetting.ToString(CultureInfo.InvariantCulture);
+                    sim.CombinedSweep(
+                                        pitchSetting,
+                                        input.flapSetting,
+                                        input.spoilers,
+                                        bodySettingDropdown.ActiveSelection
+                    );
+                }
+            }
+
+                GUILayout.EndVertical();
         }
 
         private void BelowGraphInputsGUI(GraphInputs input)

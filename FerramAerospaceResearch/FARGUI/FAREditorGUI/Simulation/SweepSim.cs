@@ -46,6 +46,7 @@ using System.IO;
 using System;
 using KSP.Localization;
 using LibNoise.Modifiers;
+using static FerramAerospaceResearch.Geometry.Exposure.Executor;
 
 namespace FerramAerospaceResearch.FARGUI.FAREditorGUI.Simulation
 {
@@ -212,6 +213,57 @@ namespace FerramAerospaceResearch.FARGUI.FAREditorGUI.Simulation
             return data;
         }
 
+
+        public void CombinedSweep(
+            double pitch,
+            int flapSetting,
+            bool spoilers,
+            CelestialBody body
+        )
+        {
+
+            var input = new InstantConditionSimInput(0, 0, 0, 0, 0, 0, 0, pitch, flapSetting, spoilers);
+
+            UnityEngine.Debug.Log(String.Format("Performing FAR combined AoA/Mach sweep with pitch {0}, flap {1}, spoiler {2}", pitch, flapSetting, spoilers));
+
+            double[] aoaValues = { -10, -5, -2.5, 0, 2.5, 5, 7.5, 10, 12.5, 15, 17.5, 20, 22.5, 25, 30, 35, 40, 45, 50 };
+            double[] machValues = { 0.25, 0.4, 0.6, 0.8, 0.85, 0.9, 0.92, 0.95, 0.98, 1.05, 1.1, 1.2, 1.3, 1.5, 2, 2.5, 3, 4, 5, 8, 10, 15, 20, 25, 30 };
+
+            var ClValues = new double[machValues.Length, aoaValues.Length];
+            var CdValues = new double[machValues.Length, aoaValues.Length];
+            var CmValues = new double[machValues.Length, aoaValues.Length];
+            var LDValues = new double[machValues.Length, aoaValues.Length];
+
+            for (int m = 0; m < machValues.Length; ++m)
+            {
+                for (int a = 0; a < aoaValues.Length; ++a)
+                {
+
+                    input.alpha = aoaValues[a];
+                    input.machNumber = machValues[m];
+
+                    _instantCondition.GetClCdCmSteady(input, out InstantConditionSimOutput output, a == 0);
+
+                    ClValues[m, a] = output.Cl;
+                    CdValues[m, a] = output.Cd;
+                    CmValues[m, a] = output.Cm;
+                    LDValues[m, a] = output.Cl / output.Cd;
+                }
+
+                
+            }
+
+
+            dumpMatrixToCSV($"FAR_combined_sweep_Cl.csv", ClValues);
+            dumpMatrixToCSV($"FAR_combined_sweep_Cd.csv", CdValues);
+            dumpMatrixToCSV($"FAR_combined_sweep_Cm.csv", CmValues);
+            dumpMatrixToCSV($"FAR_combined_sweep_LD.csv", LDValues);
+
+            UnityEngine.Debug.Log(String.Format("Performed FAR combined AoA/Mach sweep and saved data"));
+
+
+        }
+
         private void SaveDataToCSV(
             string fileName,
             double[] AlphaValues,
@@ -233,6 +285,36 @@ namespace FerramAerospaceResearch.FARGUI.FAREditorGUI.Simulation
                     writer.WriteLine($"{AlphaValues[i]},{ClValues[i]},{CdValues[i]},{CmValues[i]},{LDValues[i]}");
                 }
             }
+        }
+
+        private void dumpMatrixToCSV(
+            string fileName,
+            double[,] data
+        )
+        {
+
+            int rows = data.GetLength(0);
+            int columns = data.GetLength(1);
+
+            using (StreamWriter sw = new StreamWriter(fileName))
+            {
+                for (int i = 0; i < rows; i++)
+                {
+                    for (int j = 0; j < columns; j++)
+                    {
+                        // Write the current element to the file
+                        sw.Write(data[i, j]);
+
+                        // Add a comma if it's not the last column in the row
+                        if (j < columns - 1)
+                        {
+                            sw.Write(",");
+                        }
+                    }
+                    sw.WriteLine(); // Move to the next line after writing all columns for a row
+                }
+            }
+
         }
     }
 }
